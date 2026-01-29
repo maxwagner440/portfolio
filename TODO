@@ -1,0 +1,63 @@
+<!-- 1) Create a monorepo structure (no Nx) for an Angular + NestJS + Postgres + TypeORM portfolio/labs project.
+- Repo root folders: /apps/web (Angular), /apps/api (NestJS), /libs/shared-types (optional), /infra (optional)
+- Root package.json uses npm workspaces for apps/web and apps/api with scripts: dev:web, dev:api, dev (run both)
+- Add a root docker-compose.yml that runs postgres:16 (db name: portfolio, user/pass: postgres/postgres) and adminer on :8080
+- Ensure README.md includes exact local run commands. -->
+
+<!-- 2) In /apps/api (NestJS), implement Postgres + TypeORM configuration using @nestjs/config and .env.
+- Add .env with DB_HOST=localhost, DB_PORT=5432, DB_USER=postgres, DB_PASS=postgres, DB_NAME=portfolio, API_PORT=3000
+- Configure TypeOrmModule.forRootAsync with autoLoadEntities=true and synchronize=true (dev only)
+- Enable CORS for http://localhost:4200 in main.ts
+- Add a global ValidationPipe with transform=true and whitelist=true -->
+
+<!-- 3) Add a Search Demo module in /apps/api/src/modules/search-demo with:
+- Entity: SearchItemEntity (table search_items): id(uuid), title(text indexed), type(text indexed), status(text indexed), city(nullable), createdAt(timestamptz)
+- GET /demo/search/items endpoint that supports q, type, status, page, pageSize, sort
+- Response shape: { data, page, pageSize, total }
+- Implement filtering and pagination with query builder (ILIKE for q) and safe sorting (allow only createdAt/title with asc/desc)
+- Add seed logic: on app bootstrap, if search_items is empty, insert ~500 realistic rows across 3-5 types and 3-5 statuses -->
+
+<!-- 4) Add a Chat Demo module in /apps/api/src/modules/chat-demo with:
+- Entities:
+  - ConversationEntity (chat_conversations): id(uuid), title(text), createdAt, updatedAt
+  - MessageEntity (chat_messages): id(uuid), conversationId(FK indexed), sender(enum 'user'|'support'), body(text), createdAt
+- Endpoints:
+  - GET /demo/chat/conversations (ordered by updatedAt desc)
+  - GET /demo/chat/conversations/:id/messages?limit=30&before=<ISO> (paged backwards by createdAt, return ascending)
+  - POST /demo/chat/conversations/:id/messages { sender, body } (optimistic-friendly)
+- Add seed logic: on bootstrap, if chat_conversations empty, create 10 conversations with 50-200 messages each, update updatedAt accordingly -->
+
+5) In /apps/web (Angular), create a clean portfolio shell + Labs section with routing:
+- Routes:
+  - / (Home component)
+  - /projects (Projects component placeholder)
+  - /labs/search (SearchDemo component)
+  - /labs/chat (ChatDemo component)
+- Add a simple top nav with links: Home, Projects, Labs (dropdown or just separate links)
+- Add environment.ts with apiBaseUrl=http://localhost:3000
+
+6) Implement the Angular Search Demo page (/labs/search):
+- UI: search input (debounced 300ms), type filter, status filter, sort dropdown, page size select, pagination controls
+- Sync all filters + page + sort to URL query params so the page is shareable
+- Display results in a table/list with loading state + empty state
+- Use HttpClient + a SearchDemoApiService calling GET {apiBaseUrl}/demo/search/items
+- Ensure unsubscribe/cleanup patterns are correct (takeUntilDestroyed or DestroyRef)
+
+7) Implement the Angular Chat Demo page (/labs/chat):
+- Layout: left conversation list, right message thread, message composer at bottom
+- Load conversations, select first by default (or query param convoId)
+- Load messages for selected conversation; implement “Load older” using before=<oldestMessage.createdAt>
+- Send message: optimistic UI (show immediately), then reconcile with API response
+- Use a ChatDemoApiService for the endpoints
+- Add basic UX polish: sender grouping, timestamps, typing indicator simulation optional
+
+8) Quality + dev ergonomics:
+- Add shared UI components folder for basic button/card/spinner/empty-state
+- Add consistent error handling: toast/snackbar or inline error panel
+- Add an API proxy for Angular dev server (proxy.conf.json) so web can call /api without CORS (optional but preferred)
+- Ensure formatting + lint pass, and app builds cleanly
+
+9) Provide final verification steps:
+- Commands to run: docker compose up -d, npm i at root, npm run dev:api, npm run dev:web (or npm run dev)
+- Curl examples for API endpoints and screenshots/notes of expected JSON
+- Confirm routes render and demos function end-to-end
