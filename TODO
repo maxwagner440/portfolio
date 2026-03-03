@@ -26,7 +26,7 @@
   - GET /demo/chat/conversations/:id/messages?limit=30&before=<ISO> (paged backwards by createdAt, return ascending)
   - POST /demo/chat/conversations/:id/messages { sender, body } (optimistic-friendly)
 - Add seed logic: on bootstrap, if chat_conversations empty, create 10 conversations with 50-200 messages each, update updatedAt accordingly -->
-
+<!-- 
 5) In /apps/web (Angular), create a clean portfolio shell + Labs section with routing:
 - Routes:
   - / (Home component)
@@ -41,7 +41,7 @@
 - Sync all filters + page + sort to URL query params so the page is shareable
 - Display results in a table/list with loading state + empty state
 - Use HttpClient + a SearchDemoApiService calling GET {apiBaseUrl}/demo/search/items
-- Ensure unsubscribe/cleanup patterns are correct (takeUntilDestroyed or DestroyRef)
+- Ensure unsubscribe/cleanup patterns are correct (takeUntilDestroyed or DestroyRef) -->
 
 7) Implement the Angular Chat Demo page (/labs/chat):
 - Layout: left conversation list, right message thread, message composer at bottom
